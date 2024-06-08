@@ -5,7 +5,16 @@ import math
 app = Flask(__name__)
 
 def calculate_distance(coord1, coord2):
-    # Haversine formula to calculate distance between two lat/long points
+    """
+    Calculate the distance between two sets of coordinates using the Haversine formula.
+
+    Args:
+        coord1 (dict): A dictionary with 'latitude' and 'longitude' keys for the first coordinate.
+        coord2 (dict): A dictionary with 'latitude' and 'longitude' keys for the second coordinate.
+
+    Returns:
+        float: The distance between the two coordinates in kilometers.
+    """
     R = 6371  # Radius of the Earth in km
     lat1, lon1 = coord1['latitude'], coord1['longitude']
     lat2, lon2 = coord2['latitude'], coord2['longitude']
@@ -22,6 +31,15 @@ def calculate_distance(coord1, coord2):
 
 @app.route('/get_coordinates/<city_name>', methods=['GET'])
 def get_coordinates(city_name):
+    """
+    Fetch the latitude and longitude of a given city name using OpenStreetMap's API.
+
+    Args:
+        city_name (str): The name of the city to get the coordinates for.
+
+    Returns:
+        Response: A JSON response with 'success' status and 'coordinates' (latitude and longitude).
+    """
     url = f"https://nominatim.openstreetmap.org/search?q={city_name}&format=json"
     headers = {'User-Agent': 'testing'}
     response = requests.get(url, headers=headers)
@@ -40,12 +58,19 @@ def get_coordinates(city_name):
             "success": False,
             "message": f"An error occurred: {str(e)}"
         }), 404
-    
-    
+
 @app.route('/get_distance', methods=['POST'])
 def get_distance():
+    """
+    Calculate the distance between two sets of coordinates provided in the request body.
+
+    The request body should contain 'coordinates1' and 'coordinates2', each with 'latitude' and 'longitude'.
+
+    Returns:
+        Response: A JSON response with 'success' status and 'distance' between the coordinates in kilometers.
+    """
     try:
-        coord1 = request.json['coordinates1'] 
+        coord1 = request.json['coordinates1']
         coord2 = request.json['coordinates2']
     except KeyError:
         return jsonify({
@@ -66,5 +91,3 @@ def get_distance():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
